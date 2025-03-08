@@ -1,0 +1,28 @@
+<html lang='en'>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Example</title>
+        <script>
+            const backendUrl = 'http://localhost:2809';
+            function openAuthPopup(idp) {
+                const width = 500;
+                const height = 600;
+                const left = Math.max(window.innerWidth - width, 0) / 2;
+                const top = Math.max(window.innerHeight - height, 0) / 2;
+                window.open(`${backendUrl}/auth/${idp}`, idp, `width=${width},height=${height},top=${top},left=${left}`);
+            }
+            window.addEventListener('message', (event) => {
+                if (event.origin === backendUrl) {
+                    console.log(idp, event.data);
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <button onclick='openAuthPopup("google")'>Open Google Auth</button>
+        <button onclick='openAuthPopup("github")'>Open Github Auth</button>
+        <button onclick='openAuthPopup("linkedin")'>Open Linkedin Auth</button>
+        <button onclick='openAuthPopup("facebook")'>Open Facebook Auth</button>
+    </body>
+</html>

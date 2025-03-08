@@ -9,8 +9,9 @@
 -   `GET /auth/{ipd}`: Register a new account via given **Identity Provider (idp)**. Currently, server supports OAuth from Google, Linkedin, Github and Facebook. The URL parameter `idp` can be either `google`, `github`, `linkedin` or `facebook`
 -   `GET /auth/{idp}/callback?code`: Used for redirected URI for the IDP config. **Do not trigger the endpoints from the web client**
 -   `POST /auth/signup`: Submit the registration form to sign up. The current form only includes the most basic information such as `email`, `username`, `password`. Can be extended to the application requirements
-  
+
     > **Note**: registration uses exchange code `code` returned from `/auth/*/callback`
+
 -   `POST /auth/signin`: Send request to sign in. By providing valid credentials, `access_token` and `refresh_token` are generated and added to the client cookies
 -   `GET /auth/signout`: Send request to sign out. Clear `access_token` and `refresh_token` in the client cookies
 -   `GET /api`: Start with actual app endpoints. Protected by middleware which handles validation and renewal of `access_token` and `refresh_token`
@@ -41,7 +42,7 @@ idp-auth-server
 └── tsconfig.md
 ```
 
-#### Setup
+### Setup
 
 -   The current implementation works on **Node 20+**
 -   The server uses **MySQL** database to store the user accounts. You can configure the database engine by your favor
