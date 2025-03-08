@@ -1,5 +1,15 @@
-import cryto from 'crypto';
-import { Entity, Index, PrimaryGeneratedColumn, Column, BaseEntity, DataSource } from 'typeorm'
+import { randomInt } from 'crypto';
+import { Worker, isMainThread } from 'worker_threads';
+import { 
+    Entity, 
+    Index, 
+    PrimaryGeneratedColumn, 
+    Column, 
+    BaseEntity, 
+    DataSource, 
+    LessThan,
+    MoreThan, 
+} from 'typeorm'
 import { encryptPassword, verifyPassword } from '@/service/security';
 import { 
     DATABASE_HOST, 
@@ -36,15 +46,15 @@ export class Exchange extends BaseEntity {
     @Column()
     email: string
 
-    @Column({ type: 'uuid' })
+    @Column()
     code: string
 
     @Column({ type: 'timestamp' })
     expired: Date
 }
 
-export const databaseConnection = new DataSource({
-    type: "mysql",
+const databaseConnection = new DataSource({
+    type: 'mysql',
     host: DATABASE_HOST,
     port: DATABASE_PORT,
     username: DATABASE_USERNAME,
@@ -54,7 +64,9 @@ export const databaseConnection = new DataSource({
     entities: [User, Exchange],
 });
 
-export async function addUser(email: string, password: string, username: string): Promise<User> {
+export const addUser = async (
+    email: string, password: string, username: string
+): Promise<User> => {
     const user = new User();
     user.email = email;
     user.username = username;
@@ -62,34 +74,59 @@ export async function addUser(email: string, password: string, username: string)
     return await User.create(user).save();
 }
 
-export async function getUser(email: string, password: string): Promise<User | null> {
+export const getUser = async (
+    email: string, password: string
+): Promise<User | null> => {
     const user = await checkUser(email);
     if (!user) return null;
     const isMatch = await verifyPassword(password, user.password);
     return isMatch ? user : null;
 }
 
-export async function checkUser(email: string): Promise<User | null> {
+export const checkUser = async (email: string): Promise<User | null> => {
     return await User.findOneBy({ email });
 }
 
-export async function generateExchange(email: string): Promise<string> {
+export const generateExchange = async (email: string): Promise<string> => {
     const exchange = new Exchange();
     exchange.email = email;
-    exchange.code = cryto.randomUUID().toString();
+    exchange.code = randomInt(9999_9999).toString().padStart(8, '0');
     exchange.expired = new Date(Date.now() + EXCHANGE_DURATION * 1000);
     await Exchange.create(exchange).save();
     return exchange.code;
 }
 
-export async function getExchange(code: string): Promise<Exchange | null> {
-    const exchange = await Exchange.findOneBy({ code });
-    if (!exchange) return null;
-    if (exchange.expired >= new Date()) {
-        await exchange.remove();
-        return null;
-    }
-    return exchange;
+export const getExchange = async (code: string): Promise<Exchange | null> => {
+    return await Exchange.findOneBy({ code, expired: LessThan(new Date()) });
 }
 
+export const setupDatabase = async (): Promise<void> => {
+    await databaseConnection.initialize();
+    if (isMainThread) {
+        const resolvedPath = require.resolve(__filename);
+        const worker = new Worker(resolvedPath, {
+            execArgv: (
+                /\.ts$/.test(resolvedPath) 
+                ? ['--require', 'ts-node/register'] 
+                : undefined
+            ),
+        });
+        worker.on('error', (error) => {
+            console.error('Worker error:', error);
+        });
+        worker.on('exit', (code) => {
+            if (code !== 0) {
+                console.error(`Worker stopped with exit code ${code}`);
+            }
+        });
+    }
+}
 
+const cleanOudatedExchanges = async (): Promise<void> => {
+    await Exchange.delete({ expired: MoreThan(new Date()) });
+}
+
+if(!isMainThread) {
+    databaseConnection.initialize()
+    .then(() => setInterval(cleanOudatedExchanges, 60 * 60 * 1000));
+}

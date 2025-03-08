@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { databaseConnection } from '@/service/database';
+import { setupDatabase } from '@/service/database';
 import { SERVER_HOST, SERVER_PORT, SERVER_URI, DEV_ENVIRONMENT } from '@/config';
 
 const app = express();
@@ -12,6 +12,6 @@ if (DEV_ENVIRONMENT) {
 }
 
 app.listen(SERVER_PORT, SERVER_HOST, async () => {
-    await databaseConnection.initialize();
+    await setupDatabase();
     console.log(`Server is running on ${SERVER_URI}`);
 });
