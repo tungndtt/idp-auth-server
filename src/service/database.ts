@@ -85,7 +85,7 @@ export async function generateExchange(email: string): Promise<string> {
 export async function getExchange(code: string): Promise<Exchange | null> {
     const exchange = await Exchange.findOneBy({ code });
     if (!exchange) return null;
-    if (exchange.expired < new Date()) {
+    if (exchange.expired >= new Date()) {
         await exchange.remove();
         return null;
     }
