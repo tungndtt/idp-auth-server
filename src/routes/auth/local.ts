@@ -93,7 +93,11 @@ router.get('/callback', async (req: Request, res: Response) => {
         res.status(400).send('Invalid authorization code');
         return;
     }
-    res.status(200).send({ email: exchange.email, username: '' });
+    res.status(200).send({ 
+        email: exchange.email, 
+        username: '', 
+        code: exchange.code,
+    });
 });
 
 export default router;

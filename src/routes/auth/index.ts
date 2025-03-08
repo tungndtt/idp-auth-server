@@ -4,7 +4,7 @@ import googleRouter from '@/routes/auth/google';
 import linkedinRouter from '@/routes/auth/linkedin';
 import githubRouter from '@/routes/auth/github';
 import facebookRouter from '@/routes/auth/facebook';
-import { addUser, getUser } from '@/service/database';
+import { addUser, getUser, getExchange } from '@/service/database';
 import { generateToken } from '@/service/security';
 import { ACCESS_TOKEN_DURATION, REFRESH_TOKEN_DURATION } from '@/config';
 
@@ -16,9 +16,18 @@ router.use('/github', githubRouter);
 router.use('/facebook', facebookRouter);
 
 router.post('/signup', async (req: Request, res: Response) => {
-    const {email, password, username} = req.body;
+    const { email, password, username, code } = req.body;
     if (!email || !password) {
         res.status(400).send('Missing email or password');
+        return;
+    }
+    if (!code) {
+        res.status(400).send('Missing registration exchange code');
+        return;
+    }
+    const exchange = await getExchange(code);
+    if (!exchange) {
+        res.status(400).send('Registration outdated');
         return;
     }
     const user = await addUser(email, password, username);

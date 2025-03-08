@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { checkUser } from 'src/service/database';
+import { checkUser, generateExchange } from 'src/service/database';
 import { SERVER_URI, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from 'src/config';
 
 const router = Router();
@@ -14,7 +14,7 @@ router.get('', (_: Request, res: Response) => {
 });
 
 router.get('/callback', async (req: Request, res: Response) => {
-    const code = req.query.code;
+    let code = req.query.code;
     if (!code) {
         res.status(400).send('Missing authorization code');
         return;
@@ -76,9 +76,10 @@ router.get('/callback', async (req: Request, res: Response) => {
             res.status(404).send('User already exists');
             return;
         }
+        code = await generateExchange(email);
         res.status(200).send(`
             <script>
-                window.opener.postMessage(${JSON.stringify({email, username})}, '*');
+                window.opener.postMessage(${JSON.stringify({ email, username, code })}, '*');
                 window.close();
             </script>
         `);
