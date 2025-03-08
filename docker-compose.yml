@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  server:
+    build: .
+    container_name: idp-auth-server
+    env_file:
+      - .server.env
+    depends_on:
+      - database
+    networks:
+      - network
+
+  database:
+    image: mysql:8
+    container_name: idp-auth-database
+    env_file:
+      - .database.env
+    volumes:
+      - server_data:/var/lib/mysql
+    networks:
+      - network
+
+volumes:
+  server_data:
+
+networks:
+  network:
+    driver: bridge
