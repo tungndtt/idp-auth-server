@@ -1,16 +1,16 @@
 # IDP Authentication Server
 
-**idp-auth-server** is a TypeScript Express backend which is designed to provide an extendable template for authentication server. It supports both manual authentication via email verification and OAuth from various identity providers such as Google, Linkedin, Github, Facebook, etc.
+**idp-auth-server** is a TypeScript Express backend which is designed to provide an extendable template for authentication server. It supports both manual authentication via email verification and OAuth from various identity providers such as Google, Linkedin, Github, Facebook, etc. The idea is to allow authentication of external identity providers without exposing the oauth client (confidential client).
 
 ### API Endpoints
 
 -   `GET /auth/local`: Register a new account via given email. Server sends verification code to confirm the email
 -   `GET /auth/local/callback?code`: Use verification code to confirm the email associated with registered account
--   `GET /auth/{ipd}`: Register a new account via given **Identity Provider (idp)**. Currently, server supports OAuth from Google, Linkedin, Github and Facebook. The URL parameter `idp` can be either `google`, `github`, `linkedin` or `facebook`
+-   `GET /auth/{ipd}`: Register a new account via given **IDentity Provider (idp)**. Currently, server supports OAuth from Google, Linkedin, Github and Facebook. The URL parameter `idp` can be either `google`, `github`, `linkedin` or `facebook`
 -   `GET /auth/{idp}/callback?code`: Used for redirected URI for the IDP config. **Do not trigger the endpoints from the web client**
 -   `POST /auth/signup`: Submit the registration form to sign up. The current form only includes the most basic information such as `email`, `username`, `password`. Can be extended to the application requirements
 
-    > **Note**: registration uses exchange code `code` returned from `/auth/*/callback`
+    > **Note**: signup uses registration code `code` returned from `/auth/*/callback`. This code is generated internally by server which is **different than code given by identity providers**
 
 -   `POST /auth/signin`: Send request to sign in. By providing valid credentials, `access_token` and `refresh_token` are generated and added to the client cookies
 -   `GET /auth/signout`: Send request to sign out. Clear `access_token` and `refresh_token` in the client cookies
