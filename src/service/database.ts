@@ -1,5 +1,4 @@
 import { randomInt } from 'crypto';
-import { Worker, isMainThread } from 'worker_threads';
 import { 
     Entity, 
     Index, 
@@ -102,31 +101,30 @@ export const getExchange = async (code: string): Promise<Exchange | null> => {
 
 export const setupDatabase = async (): Promise<void> => {
     await databaseConnection.initialize();
-    if (isMainThread) {
-        const resolvedPath = require.resolve(__filename);
-        const worker = new Worker(resolvedPath, {
-            execArgv: (
-                /\.ts$/.test(resolvedPath) 
-                ? ['--require', 'ts-node/register'] 
-                : undefined
-            ),
-        });
-        worker.on('error', (error) => {
-            console.error('Worker error:', error);
-        });
-        worker.on('exit', (code) => {
-            if (code !== 0) {
-                console.error(`Worker stopped with exit code ${code}`);
-            }
-        });
-    }
+    setInterval(() => {
+        Exchange.delete({ expired: MoreThan(new Date()) })
+        .catch((error: any) => console.log('Error occurs during cleanup', error));
+    }, 60 * 60 * 1000)
+    // if (isMainThread) {
+    //     const resolvedPath = require.resolve(__filename);
+    //     const worker = new Worker(resolvedPath, {
+    //         execArgv: (
+    //             /\.ts$/.test(resolvedPath) 
+    //             ? ['-r', 'ts-node/register'] 
+    //             : undefined
+    //         ),
+    //     });
+    //     worker.on('error', (error) => {
+    //         console.error('Worker error:', error);
+    //     });
+    //     worker.on('exit', (code) => {
+    //         if (code !== 0) {
+    //             console.error(`Worker stopped with exit code ${code}`);
+    //         }
+    //     });
+    // }
 }
 
-const cleanOudatedExchanges = async (): Promise<void> => {
-    await Exchange.delete({ expired: MoreThan(new Date()) });
-}
-
-if(!isMainThread) {
-    databaseConnection.initialize()
-    .then(() => setInterval(cleanOudatedExchanges, 60 * 60 * 1000));
-}
+// if(!isMainThread) {
+//     // Do something in background
+// }
