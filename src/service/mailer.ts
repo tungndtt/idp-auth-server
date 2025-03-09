@@ -18,16 +18,24 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-export const sendEmail = async (options: EmailOptions): Promise<boolean> => {
-    try {
-        await transporter.sendMail({
-            from: `${EMAIL_DISPLAYNAME} <${EMAIL_USERNAME}>`,
-            ...options
-        });
-        return true;
-    } catch {
-        return false;
-    }
+export const sendEmail = async (options: EmailOptions): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+        let count = 0;
+        const intervalId = setInterval(async () => {
+            try {
+                await transporter.sendMail({
+                    from: `${EMAIL_DISPLAYNAME} <${EMAIL_USERNAME}>`,
+                    ...options
+                });
+                clearInterval(intervalId);
+                resolve();
+            } catch {}
+            if(count++ > 10) {
+                clearInterval(intervalId);
+                reject();
+            }
+        }, 5000);
+    });
 };
 
 // // Usage example

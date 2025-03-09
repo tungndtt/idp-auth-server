@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { checkUser, generateExchange, getExchange } from '@/service/database';
 import { sendEmail } from '@/service/mailer';
+import { EXCHANGE_DURATION } from '@/config';
 
 const router = Router();
 
@@ -16,12 +17,10 @@ router.get('', async (req: Request, res: Response) => {
         return;
     }
     const code = await generateExchange(email as string);
-    let count = 0;
-    let success = false;
-    let intervalId = setInterval(async () => {
-        success = await sendEmail({
+    try {
+        await sendEmail({
             to: email as string,
-            subject: 'Registration Verification Code',
+            subject: 'Registration Code',
             html: `
             <html lang="en">
                 <head>
@@ -51,7 +50,7 @@ router.get('', async (req: Request, res: Response) => {
                         .email-body p {
                             margin: 20px 0;
                         }
-                        .verification-code {
+                        .registration-code {
                             font-size: 26px;
                             font-weight: bold;
                             color: #4CAF50;
@@ -62,23 +61,18 @@ router.get('', async (req: Request, res: Response) => {
                     <div class="email-container">
                         <div class="email-body">
                             <p>Hello,</p>
-                            <p>Thank you for signing up! To complete your registration, please use the following verification code:</p>
-                            <p class="verification-code">${code}</p>
-                            <p>If you did not request this, please ignore this email.</p>
+                            <p>Thank you for signing up! To complete your account signup, please use the following registration code:</p>
+                            <p class="registration-code">${code}</p>
+                            <p>The code is <b>outdated ${EXCHANGE_DURATION / 60} minutes after your registration request</b>. If you did not request this, please ignore this email.</p>
                         </div>
                     </div>
                 </body>
             </html>
             `,
         });
-        if(success || count++ > 30) {
-            clearInterval(intervalId);
-        }
-    }, 2000);
-    if(!success) {
-        res.status(500).send('Failed to send verification email');
-    } else {
         res.status(200).send('Verification email sent');
+    } catch {
+        res.status(500).send('Failed to send verification email');
     }
 });
 
