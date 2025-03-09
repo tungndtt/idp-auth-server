@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { checkUser, generateExchange } from '@/service/database';
+import { checkUser, generateExchange } from '@/services/database';
 import { SERVER_URI, LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET } from '@/config';
 
 const router = Router();

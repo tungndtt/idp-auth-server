@@ -9,7 +9,7 @@ import {
     LessThan,
     MoreThan, 
 } from 'typeorm'
-import { encryptPassword, verifyPassword } from '@/service/security';
+import { encryptPassword, verifyPassword } from '@/services/security';
 import { 
     DATABASE_HOST, 
     DATABASE_PORT, 

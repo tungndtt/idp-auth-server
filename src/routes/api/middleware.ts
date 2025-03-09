@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { verifyToken, generateToken } from "@/service/security";
+import { verifyToken, generateToken } from "@/services/security";
 import { ACCESS_TOKEN_DURATION, REFRESH_TOKEN_DURATION } from "@/config";
 
 export const apiMiddleware = (req: Request, res: Response, next: NextFunction) => {

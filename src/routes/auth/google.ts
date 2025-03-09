@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { checkUser, generateExchange } from 'src/service/database';
+import { checkUser, generateExchange } from '@/services/database';
 import { SERVER_URI, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } from 'src/config';
 
 const router = Router();

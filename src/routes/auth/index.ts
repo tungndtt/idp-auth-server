@@ -4,8 +4,8 @@ import googleRouter from '@/routes/auth/google';
 import linkedinRouter from '@/routes/auth/linkedin';
 import githubRouter from '@/routes/auth/github';
 import facebookRouter from '@/routes/auth/facebook';
-import { addUser, getUser, getExchange } from '@/service/database';
-import { generateToken } from '@/service/security';
+import { addUser, getUser, getExchange } from '@/services/database';
+import { generateToken } from '@/services/security';
 import { ACCESS_TOKEN_DURATION, REFRESH_TOKEN_DURATION } from '@/config';
 
 const router = Router();

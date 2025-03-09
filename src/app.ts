@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { setupDatabase } from '@/service/database';
+import { setupDatabase } from '@/services/database';
 import { SERVER_HOST, SERVER_PORT, SERVER_URI, DEV_ENVIRONMENT } from '@/config';
 
 const app = express();

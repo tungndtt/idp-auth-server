@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { checkUser, generateExchange } from 'src/service/database';
+import { checkUser, generateExchange } from '@/services/database';
 import { SERVER_URI, FACEBOOK_CLIENT_ID, FACEBOOK_CLIENT_SECRET } from 'src/config';
 
 const router = Router();

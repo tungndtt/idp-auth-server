@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { checkUser, generateExchange, getExchange } from '@/service/database';
-import { sendEmail } from '@/service/mailer';
+import { checkUser, generateExchange, getExchange } from '@/services/database';
+import { sendEmail } from '@/services/mailer';
 import { EXCHANGE_DURATION } from '@/config';
 
 const router = Router();
