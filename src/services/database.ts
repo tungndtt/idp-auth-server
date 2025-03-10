@@ -79,6 +79,7 @@ export const getUser = async (
     const user = await checkUser(email);
     if (!user) return null;
     const isMatch = await verifyPassword(password, user.password);
+    user.password = '';
     return isMatch ? user : null;
 }
 
